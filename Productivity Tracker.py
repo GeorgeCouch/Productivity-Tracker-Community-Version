@@ -3669,6 +3669,12 @@ class DailyFrame(CTk.CTkFrame):
         else:
             timer_font_size = 75
 
+        top_padding = 0
+        if (platform.system() == "Linux"):
+            top_padding = 54
+        else:
+            top_padding = 55
+
         bottom_padding = 0
         if (platform.system() == "Linux"):
             bottom_padding = 64
@@ -3681,10 +3687,10 @@ class DailyFrame(CTk.CTkFrame):
 
         # Header Labels
         self.session_time_worked_today_header_label = CTk.CTkLabel(self, text="Session Time Worked")
-        self.session_time_worked_today_header_label.grid(row=1, column=0, padx=(50,0), pady=(54,0))
+        self.session_time_worked_today_header_label.grid(row=1, column=0, padx=(50,0), pady=(top_padding,0))
 
         self.pomodoro_header_label = CTk.CTkLabel(self, text="Pomodoro Timer")
-        self.pomodoro_header_label.grid(row=1, column=2, padx=(0,50), pady=(54,0))
+        self.pomodoro_header_label.grid(row=1, column=2, padx=(0,50), pady=(top_padding,0))
 
         # Labels for tracking total daily and pomodoro time
         self.total_time_label = CTk.CTkLabel(self, text="00:00:00", font=("", timer_font_size, "bold"))
