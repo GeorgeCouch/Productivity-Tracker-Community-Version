@@ -1,3 +1,4 @@
+from tkinter import *
 import customtkinter as CTk
 import time
 import datetime
@@ -8,6 +9,7 @@ import os
 import csv
 import discord
 from dotenv import load_dotenv
+import platform
 
 tracking = False
 pomodoro_break = False
@@ -60,6 +62,12 @@ file_path = ".env"
 if not os.path.isfile(file_path):
     with open(".env", "w", newline='') as file:
         file.write("Discord_Webhook='None'")
+
+file_path = "current_week.json"
+# Check if the file exists
+if not os.path.isfile(file_path):
+    with open(file_path, 'w') as file:
+        file.write("{}")
 
 # Open the JSON file
 with open("variables.json", "r") as file:
@@ -235,6 +243,18 @@ if ("must_clear" not in data):
 must_clear = data["must_clear"]
 current_week = data["current_week"]
 
+# Open the JSON file
+with open("current_week.json", "r") as file:
+    # Load the JSON data
+    data = json.load(file)
+
+if ("current_week_str" not in data):
+    data = {
+        "curr_week_str": ""
+    }
+
+curr_week_str = data["curr_week_str"]
+
 # current_weight = 0
 
 can_clear = True
@@ -320,7 +340,11 @@ def send_data_modal():
     # tab_view.add("Exercise Data")
     # tab_view.grid(row=1, column=0, columnspan=4, sticky="we")
 
-    current_week_range = get_date_range_for_current_week()
+    current_week_range = ""
+    if (curr_week_str != ""):
+        current_week_range = curr_week_str
+    else:
+        current_week_range = get_date_range_for_current_week()
 
     # Time Worked Each Day
     text_to_send = ""
@@ -1080,6 +1104,7 @@ def start_end():
     global can_clear
     global must_clear
     global current_week
+    global curr_week_str
     if (current_week != datetime.datetime.now().strftime("%U %Y") and current_week != -1):
         app.weekly_daily_tabs.daily_tab.start_end_button.configure(state="disabled")
         # Create a notification
@@ -1161,6 +1186,21 @@ def start_end():
             }
 
             threading.Thread(target=write_punches_to_file, args=(data,)).start()
+
+            if (curr_week_str == ""):
+                curr_week_str = get_date_range_for_current_week()
+                data = {
+                    "curr_week_str": curr_week_str
+                }
+                threading.Thread(target=write_current_week_to_file, args=(data,)).start()
+
+            if (current_week == -1):
+                current_week = datetime.datetime.now().strftime("%U %Y")
+                data = {
+                    "must_clear": must_clear,
+                    "current_week": current_week
+                }
+                threading.Thread(target=write_must_clear_to_file, args=(data,)).start()
             
             # Flush out timer if one is set and start clock
             if (timer_id != ""):
@@ -2418,6 +2458,13 @@ def write_must_clear_to_file(data):
     except Exception as e:
         write_must_clear_to_file(data)
 
+def write_current_week_to_file(data):
+    try:
+        with open("current_week.json", "w") as file:
+            json.dump(data, file)
+    except Exception as e:
+        write_current_week_to_file(data)
+
 def clear_data():
     # Check if files exist
     variables_path = "variables.json"
@@ -2425,8 +2472,9 @@ def clear_data():
     # walking_path = "walking.json"
     description_path = "description.json"
     must_clear_path = "must_clear.json"
+    current_week_path = "current_week.json"
     # Check if the file exists
-    if (os.path.isfile(variables_path) and os.path.isfile(punches_path) and os.path.isfile(description_path) and os.path.isfile(must_clear_path)):
+    if (os.path.isfile(variables_path) and os.path.isfile(punches_path) and os.path.isfile(description_path) and os.path.isfile(must_clear_path) and os.path.isfile(current_week_path)):
         # Check that not tracking (this needs to be fixed, currently it only works on boot)
         if (can_clear):
             # Empty all data from files
@@ -2435,6 +2483,7 @@ def clear_data():
             # write_walking_variables_to_file(data)
             write_punches_to_file(data)
             write_description_to_file(data)
+            write_current_week_to_file(data)
             write_must_clear_to_file(data)
             
             # Reset all UI fields
@@ -2738,6 +2787,12 @@ class ProgrammingFrame(CTk.CTkFrame):
     def __init__(self, master):
         super().__init__(master)
         self.grid_columnconfigure(0, weight=1)
+
+        left_right_padding = 0
+        if (platform.system() == "Linux"):
+            left_right_padding = 10
+        else:
+            left_right_padding = 12
         
         # Title Label
         self.title = CTk.CTkLabel(self, text="Weekly Work Statistics", fg_color="gray30")
@@ -2755,25 +2810,25 @@ class ProgrammingFrame(CTk.CTkFrame):
         
         # Weekday Labels
         self.thursday_label = CTk.CTkLabel(self, text="Thursday")
-        self.thursday_label.grid(row=6, column=0, padx=(10, 5), sticky="w")
+        self.thursday_label.grid(row=6, column=0, padx=(left_right_padding, 5), sticky="w")
 
         self.friday_label = CTk.CTkLabel(self, text="Friday")
-        self.friday_label.grid(row=7, column=0, padx=(10, 5), sticky="w")
+        self.friday_label.grid(row=7, column=0, padx=(left_right_padding, 5), sticky="w")
 
         self.saturday_label = CTk.CTkLabel(self, text="Saturday")
-        self.saturday_label.grid(row=8, column=0, padx=(10, 5), sticky="w")
+        self.saturday_label.grid(row=8, column=0, padx=(left_right_padding, 5), sticky="w")
 
         self.sunday_label = CTk.CTkLabel(self, text="Sunday")
-        self.sunday_label.grid(row=2, column=0, padx=(10, 5), sticky="w")
+        self.sunday_label.grid(row=2, column=0, padx=(left_right_padding, 5), sticky="w")
 
         self.monday_label = CTk.CTkLabel(self, text="Monday")
-        self.monday_label.grid(row=3, column=0, padx=(10, 5), sticky="w")
+        self.monday_label.grid(row=3, column=0, padx=(left_right_padding, 5), sticky="w")
 
         self.tuesday_label = CTk.CTkLabel(self, text="Tuesday")
-        self.tuesday_label.grid(row=4, column=0, padx=(10, 5), sticky="w")
+        self.tuesday_label.grid(row=4, column=0, padx=(left_right_padding, 5), sticky="w")
 
         self.wednesday_label = CTk.CTkLabel(self, text="Wednesday")
-        self.wednesday_label.grid(row=5, column=0, padx=(10, 5), sticky="w")
+        self.wednesday_label.grid(row=5, column=0, padx=(left_right_padding, 5), sticky="w")
         
         # Weekday Hour Entries
         global thursday_programming_time
@@ -2929,7 +2984,7 @@ class ProgrammingFrame(CTk.CTkFrame):
 
         # Text Box
         self.description_textbox = CTk.CTkTextbox(self, width=440, height=258, wrap="word")
-        self.description_textbox.grid(row=2, column=3, rowspan=7, padx=(5, 10))
+        self.description_textbox.grid(row=2, column=3, rowspan=7, padx=(5, left_right_padding))
         self.description_textbox.bind("<KeyRelease>", save_description)
 
         global description
@@ -3607,6 +3662,18 @@ class DailyFrame(CTk.CTkFrame):
     def __init__(self, master):
         super().__init__(master)
         self.grid_columnconfigure(0, weight=1)
+
+        timer_font_size = 0
+        if (platform.system() == "Linux"):
+            timer_font_size = 58
+        else:
+            timer_font_size = 75
+
+        bottom_padding = 0
+        if (platform.system() == "Linux"):
+            bottom_padding = 64
+        else:
+            bottom_padding = 47
         
         # Title Label
         self.title = CTk.CTkLabel(self, text="Time Trackers", fg_color="gray30")
@@ -3614,16 +3681,16 @@ class DailyFrame(CTk.CTkFrame):
 
         # Header Labels
         self.session_time_worked_today_header_label = CTk.CTkLabel(self, text="Session Time Worked")
-        self.session_time_worked_today_header_label.grid(row=1, column=0, padx=(50,0), pady=(35,0))
+        self.session_time_worked_today_header_label.grid(row=1, column=0, padx=(50,0), pady=(54,0))
 
         self.pomodoro_header_label = CTk.CTkLabel(self, text="Pomodoro Timer")
-        self.pomodoro_header_label.grid(row=1, column=2, padx=(0,50), pady=(35,0))
+        self.pomodoro_header_label.grid(row=1, column=2, padx=(0,50), pady=(54,0))
 
         # Labels for tracking total daily and pomodoro time
-        self.total_time_label = CTk.CTkLabel(self, text="00:00:00", font=("Segoe UI", 75, "bold"))
+        self.total_time_label = CTk.CTkLabel(self, text="00:00:00", font=("", timer_font_size, "bold"))
         self.total_time_label.grid(row=2, column=0, padx=(50,0))
 
-        self.pomodoro_time_label = CTk.CTkLabel(self, text="00:25:00", font=("Segoe UI", 75, "bold"))
+        self.pomodoro_time_label = CTk.CTkLabel(self, text="00:25:00", font=("", timer_font_size, "bold"))
         self.pomodoro_time_label.grid(row=2, column=2, padx=(0,50))
 
         # Labels for tracking pomodoro status
@@ -3648,7 +3715,7 @@ class DailyFrame(CTk.CTkFrame):
             self.start_end_button.configure(state="disabled")
 
         self.pause_resume_button = CTk.CTkButton(self, text="Pause", state="disabled", command=pause_resume)
-        self.pause_resume_button.grid(row=4, column=1, pady=(10,55))
+        self.pause_resume_button.grid(row=4, column=1, pady=(10,bottom_padding))
 
 class ButtonsFrame(CTk.CTkFrame):
     def __init__(self, master):
@@ -3678,9 +3745,15 @@ class App(CTk.CTk):
         # Define Window Settings
         self.title("Productivity Tracker")
         # Load and set the icon
-        self.iconbitmap("icon4.ico")  # For .ico files
+        #self.iconbitmap("icon4.ico")  # For .ico files
         # or
         #self.iconphoto(True, ctk.CTkImage(Image.open("path/to/your/icon.png"), size=(32, 32)))  # For other image formats
+
+        if (platform.system() == "Linux"):
+            self.iconphoto(False, PhotoImage(file='icon4-2.png'))
+        else:
+            self.iconbitmap("icon4.ico")  # For .ico files
+
         self.geometry("920x635")
         center_window(self, 920, 635)
         self.grid_columnconfigure(0, weight=1)
@@ -3719,6 +3792,12 @@ class App(CTk.CTk):
         
 #Run app in dark mode
 CTk.set_appearance_mode("dark")
+color = ""
+if (platform.system() == "Linux"):
+    color = "green"
+else:
+    color = "dark-blue"
+CTk.set_default_color_theme(color)
 app = App()
 
 #Function to run before closing window
