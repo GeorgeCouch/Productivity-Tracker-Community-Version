@@ -26,8 +26,8 @@ PyInstaller.__main__.run([
     '--hidden-import=plyer.platforms.win.notification',
     '--hidden-import=plyer.platforms.linux.notification',
     '--hidden-import=plyer.platforms.macosx.notification',
-    '--add-data=icon4.ico;.',  # This line includes the icon in the bundle
-    '--add-data=%s;.' % os.path.join(output_dir, 'icon4.ico'),  # This line includes the icon in the distpath
+    #'--add-data=icon4.ico;.',  # This line includes the icon in the bundle
+    #'--add-data=%s;.' % os.path.join(output_dir, 'icon4.ico'),  # This line includes the icon in the distpath
     '--icon=icon4.ico',
     '--distpath=%s' % output_dir,
     '--workpath=%s' % os.path.join(output_dir, 'build'),

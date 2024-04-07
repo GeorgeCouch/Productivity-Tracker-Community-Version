@@ -324,11 +324,16 @@ def get_day_suffix(day):
 
 def send_data_modal():
     modal_dialog = CTk.CTkToplevel(app)
-    modal_dialog.iconbitmap("icon4.ico")
+    #modal_dialog.iconbitmap("icon4.ico")
+    modal_dialog.wait_visibility()
     modal_dialog.grab_set()  # Make the dialog modal
     modal_dialog.geometry("800x490")
     modal_dialog.title("Send Data")
-    modal_dialog.iconbitmap("icon4.ico")
+    #modal_dialog.iconbitmap("icon4.ico")
+    if (platform.system() == "Linux"):
+        pass
+    else:
+        modal_dialog.after(250, lambda: modal_dialog.iconbitmap("icon4.ico"))
     center_window(modal_dialog, 800, 490)
 
     # Add your dialog content here
@@ -948,10 +953,15 @@ def send_data_modal():
 
 def clear_data_modal():
     modal_dialog = CTk.CTkToplevel(app)
+    modal_dialog.wait_visibility()
     modal_dialog.grab_set()  # Make the dialog modal
     modal_dialog.geometry("400x150")
     modal_dialog.title("Clear Data")
-    modal_dialog.iconbitmap("icon4.ico")
+    #modal_dialog.iconbitmap("icon4.ico")
+    if (platform.system() == "Linux"):
+        pass
+    else:
+        modal_dialog.after(250, lambda: modal_dialog.iconbitmap("icon4.ico"))
     center_window(modal_dialog, 400, 150)
 
     # Add your dialog content here
@@ -982,11 +992,16 @@ def clear_data_modal():
 
 def new_week_modal():
     modal_dialog = CTk.CTkToplevel(app)
+    modal_dialog.wait_visibility()
     modal_dialog.grab_set()  # Make the dialog modal
-    modal_dialog.geometry("700x200")
+    modal_dialog.geometry("720x200")
     modal_dialog.title("Clear Data")
-    modal_dialog.iconbitmap("icon4.ico")
-    center_window(modal_dialog, 700, 200)
+    #modal_dialog.iconbitmap("icon4.ico")
+    if (platform.system() == "Linux"):
+        pass
+    else:
+        modal_dialog.after(250, lambda: modal_dialog.iconbitmap("icon4.ico"))
+    center_window(modal_dialog, 720, 200)
 
     # Add your dialog content here
     first_label = CTk.CTkLabel(modal_dialog, text="You have been clocked out due to being clocked in during a new week without clearing first.")
@@ -2476,15 +2491,16 @@ def clear_data():
     # Check if the file exists
     if (os.path.isfile(variables_path) and os.path.isfile(punches_path) and os.path.isfile(description_path) and os.path.isfile(must_clear_path) and os.path.isfile(current_week_path)):
         # Check that not tracking (this needs to be fixed, currently it only works on boot)
+        global can_clear
         if (can_clear):
             # Empty all data from files
-            data = {}
-            write_variables_to_file(data)
-            # write_walking_variables_to_file(data)
-            write_punches_to_file(data)
-            write_description_to_file(data)
-            write_current_week_to_file(data)
-            write_must_clear_to_file(data)
+            # data = {}
+            # write_variables_to_file(data)
+            # # write_walking_variables_to_file(data)
+            # write_punches_to_file(data)
+            # write_description_to_file(data)
+            # write_current_week_to_file(data)
+            # write_must_clear_to_file(data)
             
             # Reset all UI fields
 
@@ -2553,6 +2569,11 @@ def clear_data():
 
             wednesday_punches = ["None"]
             app.weekly_daily_tabs.weekly_tab.wednesday_punches_entry.configure(values=wednesday_punches)
+
+            # Description Field
+            app.weekly_daily_tabs.weekly_tab.description_textbox.delete("1.0", "end-1c")
+            placeholder_string = "INSTRUCTIONS:\n\n- Edit the .env file in the dist folder to include any discord webhooks that you want to send data to.\n\n- Use the Start Button in the Daily Tracker Tab to clock in.\n\n- Once you clock in, you'll have the option to pause or resume your session.\n\n- End your session by clicking the End Button\n\n- When you aren't in a session, you'll have the ability to Send Weekly Data and Clear Weekly Data.\n\n- Sending weekly data sends your data to the discord by using webhooks. Your data will be automatically formatted to be readable and will show what dates the week covered.\n\n- Clearing Weekly Data will erase everything and set it all back to default. This will mostly be used when you want to start a new week. Be sure to send your data before doing this.\n\n- The Walking and Pomodoro switches are options that you can add to your session.\n\n- Walking assumes you are walking on a treadmill at 2mph and tracks your distance, steps, and calories burned. Calories burned are determined by the weight that you enter in the Weekly Log Exercising Tab. \n\n- Pomodoro pauses and gives a notification everytime the timer runs out. The timers go as follows: 25, 5, 25, 5, 25, 5, 25, 15\n\n- You'll only be able to type in this text box when you're not in a session. Erasing these instructions and typing a new message will save your new message."        
+            app.weekly_daily_tabs.weekly_tab.description_textbox.insert(0.0, placeholder_string)
 
             # # Weight Fields
             # app.weekly_daily_tabs.weekly_tab.exercise_frame.thursday_weight_entry.configure(state="normal")
@@ -2765,21 +2786,283 @@ def clear_data():
             # app.totals_frame.calories_burned_entry.configure(placeholder_text="0")
             # app.totals_frame.calories_burned_entry.configure(state="disabled")
 
-            global must_clear
-            must_clear = False
+            # Reinitialize vars in json files like on first boot
+            data = {
+                "thursday_programming_time": 0,
+                "friday_programming_time": 0,
+                "saturday_programming_time": 0,
+                "sunday_programming_time": 0,
+                "monday_programming_time": 0,
+                "tuesday_programming_time": 0,
+                "wednesday_programming_time": 0,
+                "total_programming_time": 0
+                }
+            
+            write_variables_to_file(data)
 
-            global current_week
-            current_week = datetime.datetime.now().strftime("%U %Y")
+            global thursday_programming_time
+            global friday_programming_time
+            global saturday_programming_time
+            global sunday_programming_time
+            global monday_programming_time
+            global tuesday_programming_time
+            global wednesday_programming_time
+            global total_programming_time
+
+            thursday_programming_time = data["thursday_programming_time"]
+            friday_programming_time = data["friday_programming_time"]
+            saturday_programming_time = data["saturday_programming_time"]
+            sunday_programming_time = data["sunday_programming_time"]
+            monday_programming_time = data["monday_programming_time"]
+            tuesday_programming_time = data["tuesday_programming_time"]
+            wednesday_programming_time = data["wednesday_programming_time"]
+            total_programming_time = data["total_programming_time"]
 
             data = {
-                "must_clear": must_clear,
-                "current_week": current_week
+                    "thursday_punches": ["None"],
+                    "friday_punches": ["None"],
+                    "saturday_punches": ["None"],
+                    "sunday_punches": ["None"],
+                    "monday_punches": ["None"],
+                    "tuesday_punches": ["None"],
+                    "wednesday_punches": ["None"],
+                    }
+            
+            write_punches_to_file(data)
+
+            thursday_punches = data["thursday_punches"]
+            friday_punches = data["friday_punches"]
+            saturday_punches = data["saturday_punches"]
+            sunday_punches = data["sunday_punches"]
+            monday_punches = data["monday_punches"]
+            tuesday_punches = data["tuesday_punches"]
+            wednesday_punches = data["wednesday_punches"]
+
+            # data = {
+            #         "thursday_weight": 0,
+            #         "friday_weight": 0,
+            #         "saturday_weight": 0,
+            #         "sunday_weight": 0,
+            #         "monday_weight": 0,
+            #         "tuesday_weight": 0,
+            #         "wednesday_weight": 0,
+            #         "total_weight_lost": 0,
+
+            #         "thursday_walking_time": 0,
+            #         "friday_walking_time": 0,
+            #         "saturday_walking_time": 0,
+            #         "sunday_walking_time": 0,
+            #         "monday_walking_time": 0,
+            #         "tuesday_walking_time": 0,
+            #         "wednesday_walking_time": 0,
+            #         "total_walking_time": 0,
+
+            #         "thursday_walking_distance": 0,
+            #         "friday_walking_distance": 0,
+            #         "saturday_walking_distance": 0,
+            #         "sunday_walking_distance": 0,
+            #         "monday_walking_distance": 0,
+            #         "tuesday_walking_distance": 0,
+            #         "wednesday_walking_distance": 0,
+            #         "total_walking_distance": 0,
+
+            #         "thursday_walking_steps": 0,
+            #         "friday_walking_steps": 0,
+            #         "saturday_walking_steps": 0,
+            #         "sunday_walking_steps": 0,
+            #         "monday_walking_steps": 0,
+            #         "tuesday_walking_steps": 0,
+            #         "wednesday_walking_steps": 0,
+            #         "total_walking_steps": 0,
+
+            #         "thursday_calories": 0,
+            #         "friday_calories": 0,
+            #         "saturday_calories": 0,
+            #         "sunday_calories": 0,
+            #         "monday_calories": 0,
+            #         "tuesday_calories": 0,
+            #         "wednesday_calories": 0,
+            #         "total_calories": 0
+            #         }
+
+            # write_walking_variables_to_file(data)
+
+            # global thursday_weight
+            # global friday_weight
+            # global saturday_weight
+            # global sunday_weight
+            # global monday_weight
+            # global tuesday_weight
+            # global wednesday_weight
+            # global total_weight_lost
+
+            # thursday_weight = data["thursday_weight"]
+            # friday_weight = data["friday_weight"]
+            # saturday_weight = data["saturday_weight"]
+            # sunday_weight = data["sunday_weight"]
+            # monday_weight = data["monday_weight"]
+            # tuesday_weight = data["tuesday_weight"]
+            # wednesday_weight = data["wednesday_weight"]
+            # total_weight_lost = data["total_weight_lost"]
+
+            # global thursday_walking_time
+            # global friday_walking_time
+            # global saturday_walking_time
+            # global sunday_walking_time
+            # global monday_walking_time
+            # global tuesday_walking_time
+            # global wednesday_walking_time
+            # global total_walking_time
+
+            # thursday_walking_time = data["thursday_walking_time"]
+            # friday_walking_time = data["friday_walking_time"]
+            # saturday_walking_time = data["saturday_walking_time"]
+            # sunday_walking_time = data["sunday_walking_time"]
+            # monday_walking_time = data["monday_walking_time"]
+            # tuesday_walking_time = data["tuesday_walking_time"]
+            # wednesday_walking_time = data["wednesday_walking_time"]
+            # total_walking_time = data["total_walking_time"]
+
+            # global thursday_walking_distance
+            # global friday_walking_distance
+            # global saturday_walking_distance
+            # global sunday_walking_distance
+            # global monday_walking_distance
+            # global tuesday_walking_distance
+            # global wednesday_walking_distance
+            # global total_walking_distance
+
+            # thursday_walking_distance = data["thursday_walking_distance"]
+            # friday_walking_distance = data["friday_walking_distance"]
+            # saturday_walking_distance = data["saturday_walking_distance"]
+            # sunday_walking_distance = data["sunday_walking_distance"]
+            # monday_walking_distance = data["monday_walking_distance"]
+            # tuesday_walking_distance = data["tuesday_walking_distance"]
+            # wednesday_walking_distance = data["wednesday_walking_distance"]
+            # total_walking_distance = data["total_walking_distance"]
+
+            # global thursday_walking_steps
+            # global friday_walking_steps
+            # global saturday_walking_steps
+            # global sunday_walking_steps
+            # global monday_walking_steps
+            # global tuesday_walking_steps
+            # global wednesday_walking_steps
+            # global total_walking_steps
+
+            # thursday_walking_steps = data["thursday_walking_steps"]
+            # friday_walking_steps = data["friday_walking_steps"]
+            # saturday_walking_steps = data["saturday_walking_steps"]
+            # sunday_walking_steps = data["sunday_walking_steps"]
+            # monday_walking_steps = data["monday_walking_steps"]
+            # tuesday_walking_steps = data["tuesday_walking_steps"]
+            # wednesday_walking_steps = data["wednesday_walking_steps"]
+            # total_walking_steps = data["total_walking_steps"]
+
+            # global thursday_calories
+            # global friday_calories
+            # global saturday_calories
+            # global sunday_calories
+            # global monday_calories
+            # global tuesday_calories
+            # global wednesday_calories
+            # global total_calories
+
+            # thursday_calories = data["thursday_calories"]
+            # friday_calories = data["friday_calories"]
+            # saturday_calories = data["saturday_calories"]
+            # sunday_calories = data["sunday_calories"]
+            # monday_calories = data["monday_calories"]
+            # tuesday_calories = data["tuesday_calories"]
+            # wednesday_calories = data["wednesday_calories"]
+            # total_calories = data["total_calories"]
+
+            data = {
+                "description": ""
             }
 
-            threading.Thread(target=write_must_clear_to_file, args=(data,)).start()
+            write_description_to_file(data)
 
+            global description
+            description = data["description"]
+
+            data = {
+                "must_clear": False,
+                "current_week": -1
+            }
+
+            write_must_clear_to_file(data)
+
+            global must_clear
+            global current_week
+
+            must_clear = data["must_clear"]
+            current_week = data["current_week"]
+
+            data = {
+                "curr_week_str": ""
+            }
+
+            write_current_week_to_file(data)
+
+            global curr_week_str
+            curr_week_str = data["curr_week_str"]
+
+            # Reset Variables in Memory in case user doesn't reboot program
+            # Settings Vars
+            global tracking
+            global pomodoro_break
             global readytostart
+            global paused
+            global p_string_store
+            global focus_time
+            global break_time
+            global long_break_time
+            global p_focus_time
+            global p_break_time
+            global p_long_break_time
+            global p_cycle_count
+            global start_time
+            global time_passed
+            global timer_id
+
+            tracking = False
+            pomodoro_break = False
             readytostart = True
+            paused = False
+            p_string_store = ""
+            focus_time = 1500
+            break_time = 300
+            long_break_time = 900
+            p_focus_time = 1500
+            p_break_time = 300
+            p_long_break_time = 900
+            p_cycle_count = 1
+            start_time = 0
+            time_passed = 0
+            timer_id = ""
+            curr_week_str = ""
+
+            #global current_weight
+            #current_weight = 0
+
+            can_clear = True
+
+            # global sunday_weight_as_float
+            # global monday_weight_as_float
+            # global tuesday_weight_as_float
+            # global wednesday_weight_as_float
+            # global thursday_weight_as_float
+            # global friday_weight_as_float
+            # global saturday_weight_as_float
+
+            # sunday_weight_as_float = 0
+            # monday_weight_as_float = 0
+            # tuesday_weight_as_float = 0
+            # wednesday_weight_as_float = 0
+            # thursday_weight_as_float = 0
+            # friday_weight_as_float = 0
+            # saturday_weight_as_float = 0
 
             app.weekly_daily_tabs.daily_tab.start_end_button.configure(state="normal")
 
