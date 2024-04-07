@@ -334,6 +334,7 @@ def send_data_modal():
         pass
     else:
         modal_dialog.after(250, lambda: modal_dialog.iconbitmap("icon4.ico"))
+    modal_dialog.update()
     center_window(modal_dialog, 800, 490)
 
     # Add your dialog content here
@@ -962,6 +963,7 @@ def clear_data_modal():
         pass
     else:
         modal_dialog.after(250, lambda: modal_dialog.iconbitmap("icon4.ico"))
+    modal_dialog.update()
     center_window(modal_dialog, 400, 150)
 
     # Add your dialog content here
@@ -1001,6 +1003,7 @@ def new_week_modal():
         pass
     else:
         modal_dialog.after(250, lambda: modal_dialog.iconbitmap("icon4.ico"))
+    modal_dialog.update()
     center_window(modal_dialog, 720, 200)
 
     # Add your dialog content here
