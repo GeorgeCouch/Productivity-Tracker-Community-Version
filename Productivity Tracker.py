@@ -325,7 +325,10 @@ def get_day_suffix(day):
 def send_data_modal():
     modal_dialog = CTk.CTkToplevel(app)
     #modal_dialog.iconbitmap("icon4.ico")
-    modal_dialog.wait_visibility()
+    if (platform.system() == "Linux"):
+        modal_dialog.wait_visibility()
+    else:
+        pass
     modal_dialog.grab_set()  # Make the dialog modal
     modal_dialog.geometry("800x490")
     modal_dialog.title("Send Data")
@@ -334,7 +337,7 @@ def send_data_modal():
         pass
     else:
         modal_dialog.after(250, lambda: modal_dialog.iconbitmap("icon4.ico"))
-    modal_dialog.update()
+    #modal_dialog.update()
     center_window(modal_dialog, 800, 490)
 
     # Add your dialog content here
@@ -510,8 +513,8 @@ def send_data_modal():
         text_to_send += "No description given..."
         description_str = "No description given..."
 
-    print(description)
-    print(description_str)
+    # print(description)
+    # print(description_str)
     textbox = CTk.CTkTextbox(modal_dialog, wrap="word", height=350, width=750)
     textbox.grid(row=0, column=0, pady=(50, 0))
     textbox.insert(1.0, text_to_send)
@@ -954,7 +957,10 @@ def send_data_modal():
 
 def clear_data_modal():
     modal_dialog = CTk.CTkToplevel(app)
-    modal_dialog.wait_visibility()
+    if (platform.system() == "Linux"):
+        modal_dialog.wait_visibility()
+    else:
+        pass
     modal_dialog.grab_set()  # Make the dialog modal
     modal_dialog.geometry("400x150")
     modal_dialog.title("Clear Data")
@@ -963,7 +969,7 @@ def clear_data_modal():
         pass
     else:
         modal_dialog.after(250, lambda: modal_dialog.iconbitmap("icon4.ico"))
-    modal_dialog.update()
+    #modal_dialog.update()
     center_window(modal_dialog, 400, 150)
 
     # Add your dialog content here
@@ -994,7 +1000,10 @@ def clear_data_modal():
 
 def new_week_modal():
     modal_dialog = CTk.CTkToplevel(app)
-    modal_dialog.wait_visibility()
+    if (platform.system() == "Linux"):
+        modal_dialog.wait_visibility()
+    else:
+        pass
     modal_dialog.grab_set()  # Make the dialog modal
     modal_dialog.geometry("720x200")
     modal_dialog.title("Clear Data")
@@ -1003,7 +1012,7 @@ def new_week_modal():
         pass
     else:
         modal_dialog.after(250, lambda: modal_dialog.iconbitmap("icon4.ico"))
-    modal_dialog.update()
+    #modal_dialog.update()
     center_window(modal_dialog, 720, 200)
 
     # Add your dialog content here
