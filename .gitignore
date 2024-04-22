@@ -1,9 +1,5 @@
 Personal Productivity Tracker exe/
 .env
-description.json
-must_clear.json
-punches.json
-variables.json
-walking.json
-Productivity Tracker.spec
-current_week.json
+*.json
+*.csv
+*.spec

@@ -808,7 +808,7 @@ def send_data_modal():
             writer.writerow([description_str])
 
         load_dotenv(".env", override=True)
-        webhook_arr = os.environ.get("Programming_Webhooks")
+        webhook_arr = os.environ.get("Discord_Webhook")
         send_data(webhook_arr, "work.csv", text_to_send)
 
         modal_dialog.destroy()
